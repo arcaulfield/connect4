@@ -10,15 +10,16 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 
-public class Controller {
+public class OnePlayer {
     public Button button0;
     public Button button1;
     public Button button2;
     public Button button3;
     public Button button4;
     public Button button5;
-    public Button reset;
     public Button back;
+    public Button[] button = null;
+    public Button reset;
     public Label box00;
     public Label box01;
     public Label box02;
@@ -60,12 +61,7 @@ public class Controller {
     private Stage stage;
 
     public Label[][] grid = null;
-    public int tracker0 = 5;
-    public int tracker1 = 5;
-    public int tracker2 = 5;
-    public int tracker3 = 5;
-    public int tracker4 = 5;
-    public int tracker5 = 5;
+    public int[] tracker = null;
 
     public void initGrid() {
         grid = new Label[6][6];
@@ -115,6 +111,26 @@ public class Controller {
 
     }
 
+    public void initButton(){
+        button = new Button[6];
+        button[0] = button0;
+        button[1] = button1;
+        button[2] = button2;
+        button[3] = button3;
+        button[4] = button4;
+        button[5] = button5;
+    }
+
+    public void initTracker(){
+        tracker = new int[6];
+        tracker[0] = 5;
+        tracker[1] = 5;
+        tracker[2] = 5;
+        tracker[3] = 5;
+        tracker[4] = 5;
+        tracker[5] = 5;
+    }
+
     private void togglePlayer() {
         playerTurn = (playerTurn == 'x') ? 'o' : 'x';
     }
@@ -133,6 +149,7 @@ public class Controller {
             }
         }
 
+        //horizontal win
         for(int j = 0; j < 6; j++){
             for(int i = 0; i < 3; i++){
                 if(grid[i][j].getText().charAt(0) != ' ' && grid[i][j].getText().equals(grid[i+1][j].getText()) && grid[i][j].getText().equals(grid[i+2][j].getText()) && grid[i][j].getText().equals(grid[i+3][j].getText())){
@@ -174,52 +191,52 @@ public class Controller {
 
     private void move(Button target) {
         if (target.equals(button0)) {
-            grid[0][tracker0].setText("" + playerTurn);
-            if(tracker0 == 0){
+            grid[0][tracker[0]].setText("" + playerTurn);
+            if(tracker[0] == 0){
                 button0.setDisable(true);
             }else{
-                tracker0--;
+                tracker[0]--;
             }
 
 
         } else if (target.equals(button1)) {
-            grid[1][tracker1].setText("" + playerTurn);
-            if(tracker1 == 0){
+            grid[1][tracker[1]].setText("" + playerTurn);
+            if(tracker[1] == 0){
                 button1.setDisable(true);
             }else{
-                tracker1--;
+                tracker[1]--;
             }
 
         } else if (target.equals(button2)) {
-            grid[2][tracker2].setText("" + playerTurn);
-            if(tracker2 == 0){
+            grid[2][tracker[2]].setText("" + playerTurn);
+            if(tracker[2] == 0){
                 button2.setDisable(true);
             }else{
-                tracker2--;
+                tracker[2]--;
             }
 
         } else if (target.equals(button3)) {
-            grid[3][tracker3].setText("" + playerTurn);
-            if(tracker3 == 0){
+            grid[3][tracker[3]].setText("" + playerTurn);
+            if(tracker[3] == 0){
                 button3.setDisable(true);
             }else{
-                tracker3--;
+                tracker[3]--;
             }
 
         } else if (target.equals(button4)) {
-            grid[4][tracker4].setText("" + playerTurn);
-            if(tracker4 == 0){
+            grid[4][tracker[4]].setText("" + playerTurn);
+            if(tracker[4] == 0){
                 button4.setDisable(true);
             }else{
-                tracker4--;
+                tracker[4]--;
             }
 
         } else if (target.equals(button5)) {
-            grid[5][tracker5].setText("" + playerTurn);
-            if (tracker5 == 0) {
+            grid[5][tracker[5]].setText("" + playerTurn);
+            if (tracker[5] == 0) {
                 button5.setDisable(true);
             } else {
-                tracker5--;
+                tracker[5]--;
             }
         }
 
@@ -230,6 +247,13 @@ public class Controller {
         if (grid == null) {
             initGrid();
         }
+        if (button == null){
+            initButton();
+        }
+        if (tracker == null){
+            initTracker();
+        }
+
         Button targetButton = (Button) e.getTarget();
         move(targetButton);
         togglePlayer();
@@ -237,9 +261,11 @@ public class Controller {
 
         char winner = checkWinner();
         if(winner == ' '){
+            moveAI();
             return;
         }else if(winner == 't'){
             message.setText("It's a tie!");
+            return;
         }
         else{
             message.setText("Player " + winner + " won!");
@@ -249,18 +275,56 @@ public class Controller {
             button3.setDisable(true);
             button4.setDisable(true);
             button5.setDisable(true);
+            return;
         }
 
 
-    }
-    public void reset(ActionEvent e){
-        tracker0 = 5;
-        tracker1 = 5;
-        tracker2 = 5;
-        tracker3 = 5;
-        tracker4 = 5;
-        tracker5 = 5;
 
+
+    }
+
+    public void moveAI(){
+
+        AI curAI = new AI(grid, tracker);
+
+
+        int rand = curAI.determineMove();
+
+        move(button[rand]);
+        togglePlayer();
+        message.setText("It is " + playerTurn +"'s turn.");
+
+        char winner = checkWinner();
+        if(winner == ' '){
+            return;
+        }else if(winner == 't'){
+            message.setText("It's a tie!");
+            return;
+        }
+        else{
+            message.setText("Player " + winner + " won!");
+            button0.setDisable(true);
+            button1.setDisable(true);
+            button2.setDisable(true);
+            button3.setDisable(true);
+            button4.setDisable(true);
+            button5.setDisable(true);
+            return;
+        }
+    }
+
+    public void back(ActionEvent e) throws IOException{
+        stage = (Stage) back.getScene().getWindow();
+        GridPane root = FXMLLoader.load(getClass().getResource("login.fxml"));
+        Scene scene = new Scene(root, 300, 275);
+        stage.setScene(scene);
+    }
+
+
+    public void reset(ActionEvent e){
+        for(int i = 0; i < 6; i++){
+            tracker[i] = 5;
+        }
         button0.setDisable(false);
         button1.setDisable(false);
         button2.setDisable(false);
@@ -280,22 +344,10 @@ public class Controller {
 
 
 
-        //decide who plays first next
-        int rand = (((int) (Math.random() * 10)) % 2) + 1;
-
-        for (int i = 0; i < rand; i++) {
-            togglePlayer();
-        }
+        playerTurn = 'x';
 
         message.setText("It is " + playerTurn +"'s turn.");
 
-    }
-
-    public void back(ActionEvent e) throws IOException{
-        stage = (Stage) back.getScene().getWindow();
-        GridPane root = FXMLLoader.load(getClass().getResource("login.fxml"));
-        Scene scene = new Scene(root, 300, 275);
-        stage.setScene(scene);
     }
 
 }

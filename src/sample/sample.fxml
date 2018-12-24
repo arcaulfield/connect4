@@ -81,6 +81,7 @@
 
       <Label fx:id="message" textAlignment="CENTER" GridPane.rowIndex="2">It is x's turn.</Label>
       <Button fx:id="reset" mnemonicParsing="false" onAction="#reset" text="reset"  GridPane.rowIndex="3"/>
+      <Button fx:id="back" mnemonicParsing="false" onAction="#back" text="back"  GridPane.rowIndex="4"/>
    </children>
 
 </GridPane>
